@@ -287,6 +287,11 @@ namespace SLNet
 		bool Read(wchar_t *&varString);
 		bool Read(wchar_t *&varString, size_t varStringLength);
 
+		/// \brief Read a pointer from a bitstream.  
+		/// \details Define __BITSTREAM_NATIVE_END if you need endian swapping.
+		/// \param[in] varPtr The value to read
+		bool ReadPtr(uint64_t &varPtr);
+
 		/// \brief Read any integral type from a bitstream.  
 		/// \details If the written value differed from the value compared against in the write function,
 		/// var will be updated.  Otherwise it will retain the current value.
@@ -947,21 +952,17 @@ namespace SLNet
 #ifdef _MSC_VER
 #pragma warning(disable:4127)   // conditional expression is constant
 #endif
-		if (sizeof(templateType)==1)
-			WriteBits( ( unsigned char* ) inTemplateVar, sizeof( templateType ) * 8, true );
-		else
-		{
+		uint64_t ptr = (uint64_t)inTemplateVar;
 #ifndef __BITSTREAM_NATIVE_END
-			if (DoEndianSwap())
-			{
-				unsigned char output[sizeof(templateType)];
-				ReverseBytes((unsigned char*) inTemplateVar, output, sizeof(templateType));
-				WriteBits( ( unsigned char* ) output, sizeof(templateType) * 8, true );
-			}
-			else
-#endif
-				WriteBits( ( unsigned char* ) inTemplateVar, sizeof(templateType) * 8, true );
+		if (DoEndianSwap())
+		{
+			unsigned char output[sizeof(ptr)];
+			ReverseBytes((unsigned char*)ptr, output, sizeof(ptr));
+			WriteBits(output, sizeof(ptr) * 8, true);
 		}
+		else
+#endif
+			WriteBits((unsigned char*)ptr, sizeof(ptr) * 8, true);
 	}
 
 	/// \brief Write a bool to a bitstream.
@@ -1300,6 +1301,30 @@ namespace SLNet
 #endif
 				return ReadBits( ( unsigned char* ) & outTemplateVar, sizeof(templateType) * 8, true );
 		}
+	}
+
+	/// \brief Read a pointer from a bitstream.  
+	/// \details Define __BITSTREAM_NATIVE_END if you need endian swapping.
+	/// \param[in] varPtr The value to read
+	inline bool BitStream::ReadPtr(uint64_t &varPtr)
+	{
+#ifdef _MSC_VER
+#pragma warning(disable:4127)   // conditional expression is constant
+#endif
+#ifndef __BITSTREAM_NATIVE_END
+		if (DoEndianSwap())
+		{
+			unsigned char output[sizeof(varPtr)];
+			if (!ReadBits(output, sizeof(varPtr) * 8, true))
+			{
+				return false;
+			}
+
+			ReverseBytes(output, (unsigned char*)&varPtr, sizeof(varPtr));
+			return true;
+		}
+#endif
+		return ReadBits((unsigned char*)&varPtr, sizeof(varPtr) * 8, true);
 	}
 
 	/// \brief Read a bool from a bitstream.
