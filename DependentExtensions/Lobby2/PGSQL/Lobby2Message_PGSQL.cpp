@@ -558,8 +558,7 @@ bool SLNet::System_CreateDatabase_PGSQL::ServerDBImpl( Lobby2ServerCommand *comm
 	else
 	{
 		resultCode=L2RC_DATABASE_CONSTRAINT_FAILURE;
-		printf(cmd);
-		printf(pgsql->GetLastError());
+		printf("%s\n%s", cmd, pgsql->GetLastError());
 	}
 	rakFree_Ex(cmd, _FILE_AND_LINE_ );
 	return true;
@@ -2696,7 +2695,7 @@ bool SLNet::Ranking_GetTotalScore_PGSQL::ServerDBImpl( Lobby2ServerCommand *comm
 		return true;
 	}
 
-	int64_t count;
+	long long count;
 	PostgreSQLInterface::PQGetValueFromBinary(&count, result, 0, "count");
 	numScoresSubmitted = (unsigned int) count;
 	if (numScoresSubmitted>0)

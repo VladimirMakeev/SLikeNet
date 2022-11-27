@@ -622,9 +622,7 @@ PGresult * PostgreSQLInterface::QueryVariadic( const char * input, ... )
 		}
 		else
 		{
-			printf(formatCopy.C_String());
-			printf("\n");
-			printf(lastError);
+			printf("%s\n%s", formatCopy.C_String(), lastError);
 			RakAssert(0);
 			PQclear(result);
 			return 0;
@@ -651,7 +649,7 @@ PGresult * PostgreSQLInterface::QueryVariadic( const char * input, ... )
 
 	if (IsResultSuccessful(result, false)==false)
 	{
-		printf(lastError);
+		puts(lastError);
 		PQclear(result);
 		return 0;
 	}
