@@ -176,7 +176,7 @@ void TableSerializer::SerializeCell(SLNet::BitStream *out, DataStructures::Table
 		}
 		else if (columnType==DataStructures::Table::POINTER)
 		{
-			out->Write(cell->ptr);
+			out->WritePtr(cell->ptr);
 		}
 		else
 		{
@@ -194,7 +194,7 @@ bool TableSerializer::DeserializeCell(SLNet::BitStream *in, DataStructures::Tabl
 {
 	bool isEmpty=false;
 	double value;
-	void *ptr;
+	uint64_t ptr;
 	char tempString[65535];
 	cell->Clear();
 
@@ -216,9 +216,14 @@ bool TableSerializer::DeserializeCell(SLNet::BitStream *in, DataStructures::Tabl
 		}
 		else if (columnType==DataStructures::Table::POINTER)
 		{
-			if (in->Read(ptr)==false)
+			if (in->ReadPtr(ptr)==false)
 				return false;
-			cell->SetPtr(ptr);
+			// (void*)ptr cast causes data truncation in case of 64->32 bit transmission thus ptr becomes invalid.
+			// This was left as-is intentionally.
+			// Changing DataStructures::Table::Cell::ptr type to uint64_t would break export structure format.
+			// Currently, the only usage of Table::POINTER is TC_LOBBY_ROOM_PTR, that is internal, thus has no usage outside of server instance.
+			// TODO: fix DataStructures::Table::Cell::ptr type to be compatible with 64-bit pointers when needed.
+			cell->SetPtr((void*)ptr);
 		}
 		else
 		{
