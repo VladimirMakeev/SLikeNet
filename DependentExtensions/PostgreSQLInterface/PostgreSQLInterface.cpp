@@ -649,7 +649,7 @@ PGresult * PostgreSQLInterface::QueryVariadic( const char * input, ... )
 
 	if (IsResultSuccessful(result, false)==false)
 	{
-		puts(lastError);
+		printf("%s", lastError);
 		PQclear(result);
 		return 0;
 	}

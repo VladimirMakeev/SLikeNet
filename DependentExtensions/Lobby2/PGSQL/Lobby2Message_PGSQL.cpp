@@ -558,7 +558,7 @@ bool SLNet::System_CreateDatabase_PGSQL::ServerDBImpl( Lobby2ServerCommand *comm
 	else
 	{
 		resultCode=L2RC_DATABASE_CONSTRAINT_FAILURE;
-		printf("%s\n%s", cmd, pgsql->GetLastError());
+		printf("%s%s", cmd, pgsql->GetLastError());
 	}
 	rakFree_Ex(cmd, _FILE_AND_LINE_ );
 	return true;

@@ -321,7 +321,7 @@ struct Lobby2Message
 	/// Print the result of DebugMsg
 	virtual void DebugPrintf(void) const
 	{
-		SLNet::RakString out; DebugMsg(out); puts(out.C_String());
+		SLNet::RakString out; DebugMsg(out); printf("%s", out.C_String());
 	}
 	
 	/// Result of the operation. L2RC_SUCCESS means the result completed. Anything else means an error
