@@ -251,7 +251,7 @@ void TableSerializer::SerializeFilterQuery(SLNet::BitStream *in, DataStructures:
 	{
 		in->Write(query->cellValue->i);
 		in->WriteAlignedBytesSafe((const char*)query->cellValue->c,(const unsigned int)query->cellValue->i,10000000); // Sanity check to max binary cell of 10 megabytes
-		in->Write(query->cellValue->ptr);
+		in->WritePtr(query->cellValue->ptr);
 
 	}
 }
@@ -262,6 +262,7 @@ bool TableSerializer::DeserializeFilterQuery(SLNet::BitStream *out, DataStructur
 	StringCompressor::Instance()->DecodeString(query->columnName,_TABLE_MAX_COLUMN_NAME_LENGTH,out,0);
 	out->ReadCompressed(query->columnIndex);
 	unsigned char op;
+	uint64_t ptr;
 	out->Read(op);
 	query->operation=(DataStructures::Table::FilterQueryType) op;
 	query->cellValue->Clear();
@@ -274,7 +275,9 @@ bool TableSerializer::DeserializeFilterQuery(SLNet::BitStream *out, DataStructur
 		out->ReadAlignedBytesSafeAlloc(&query->cellValue->c,inputLength,10000000); // Sanity check to max binary cell of 10 megabytes
 		if (query->cellValue->c)
 			query->cellValue->i=inputLength;
-		b=out->Read(query->cellValue->ptr);
+		b=out->ReadPtr(ptr);
+		if (b)
+			query->cellValue->ptr = (void*)ptr;
 	}
 	return b;
 }
