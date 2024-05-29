@@ -957,12 +957,12 @@ namespace SLNet
 		if (DoEndianSwap())
 		{
 			unsigned char output[sizeof(ptr)];
-			ReverseBytes((unsigned char*)ptr, output, sizeof(ptr));
+			ReverseBytes((unsigned char*)&ptr, output, sizeof(ptr));
 			WriteBits(output, sizeof(ptr) * 8, true);
 		}
 		else
 #endif
-			WriteBits((unsigned char*)ptr, sizeof(ptr) * 8, true);
+			WriteBits((unsigned char*)&ptr, sizeof(ptr) * 8, true);
 	}
 
 	/// \brief Write a bool to a bitstream.
